@@ -3,13 +3,12 @@ package main
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"openai-svr/handler"
 	openaiwrapper "openai-svr/openai_wrapper"
+	"openai-svr/utils"
 	"os"
 	"time"
 
@@ -18,29 +17,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var configuration = struct {
-	configFile     string
-	CertFile       string `json:"cert_file"`
-	KeyFile        string `json:"key_file"`
-	OpenaiApiToken string `json:"openai_api_token"`
-}{}
+var configuration = utils.Configuration{}
 
 func parseCmd() error {
-	flag.StringVar(&configuration.configFile, "config-file", "", "server config file")
+	var configFile string
+	flag.StringVar(&configFile, "config-file", "", "server config file")
 	flag.Parse()
 
-	if len(configuration.configFile) == 0 {
-		return errors.New("configFile is not specified")
-	}
-	file, _ := os.Open(configuration.configFile)
-	defer file.Close()
-	decoder := json.NewDecoder(file)
-	err := decoder.Decode(&configuration)
-	if err != nil {
-		return errors.New(fmt.Sprintf("read configFile %s failed: %s", configuration.configFile, err.Error()))
-	}
-	openaiwrapper.SetupToken(configuration.OpenaiApiToken)
+	configuration.ReadConfig(configFile)
 	fmt.Printf("%v\n", configuration)
+
+	openaiwrapper.SetupToken(configuration.OpenaiApiToken)
 	return nil
 }
 
