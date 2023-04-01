@@ -10,7 +10,7 @@ import (
 )
 
 type createChatIdReq struct {
-	UserUID string `json:"usrd_uid"`
+	UserUID string `json:"user_uid"`
 }
 
 type createChatIdData struct {
