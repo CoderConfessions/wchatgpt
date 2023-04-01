@@ -2,16 +2,25 @@ package utils
 
 import (
 	"flag"
-	"fmt"
+
+	"k8s.io/klog/v2"
 )
 
 func ParseCmd(c *Configuration) error {
+	klog.InitFlags(nil)
+
 	var configFile string
 	flag.StringVar(&configFile, "config-file", "", "server config file")
 	flag.Parse()
 
-	c.ReadConfig(configFile)
-	fmt.Printf("%v\n", c)
+	if err := c.ReadConfig(configFile); err != nil {
+		return err
+	}
+	klog.V(4).Infof("%v\n", c)
+
+	if err := c.ValidateConfig(); err != nil {
+		return err
+	}
 
 	return nil
 }

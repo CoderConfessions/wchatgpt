@@ -13,25 +13,25 @@ import (
 	"os"
 	"time"
 
+	"k8s.io/klog/v2"
+
 	"github.com/gorilla/mux"
 )
 
-var configuration = utils.Configuration{}
+var configuration = utils.NewConfiguration()
 
 func main() {
 	if err := utils.ParseCmd(&configuration); err != nil {
-		fmt.Println("parseCmd failed:", err.Error())
+		klog.Fatalf("ParseCmd failed: %s", err.Error())
 		os.Exit(1)
 	}
 	openaiwrapper.SetupOpenAIClientConfig(configuration.OpenaiApiToken, "")
 
 	if err := mysqlwrapper.InitPool(); err != nil {
-		fmt.Println("init mysql connetion poll failed:", err.Error())
-		os.Exit(1)
+		klog.Fatalf("init mysql connection pool failed: %s", err.Error())
 	}
 	defer mysqlwrapper.ReleasePool()
 
-	fmt.Println("main start")
 	r := mux.NewRouter()
 	handler.Register(r)
 
@@ -39,7 +39,7 @@ func main() {
 	caPool := x509.NewCertPool()
 	caPool.AppendCertsFromPEM(caClient)
 	svr := &http.Server{
-		Addr:         "127.0.0.1:8080",
+		Addr:         fmt.Sprintf("%s:%d", configuration.IP, configuration.Port),
 		ReadTimeout:  time.Second * 15,
 		WriteTimeout: time.Second * 15,
 		IdleTimeout:  time.Minute * 3,

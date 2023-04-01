@@ -3,9 +3,9 @@ package mysqlwrapper
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
+	"k8s.io/klog/v2"
 )
 
 var pool *sql.DB
@@ -17,7 +17,7 @@ func InitPool() error {
 	if err != nil {
 		// This will not be a connection error, but a DSN parse error or
 		// another initialization error.
-		log.Fatal("unable to use data source name", err)
+		klog.Fatal("unable to use data source name", err)
 	}
 	return err
 }
