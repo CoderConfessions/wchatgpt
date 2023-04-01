@@ -1,0 +1,41 @@
+<!--index.wxml-->
+<view class="chat-container">
+  <!-- 聊天窗口 -->
+  <scroll-view class="chat-window" scroll-y="true" scroll-into-view="{{toView}}" style='height: 1500rpx' scroll-with-animation="{{true}}">
+    <view class='placeholder-top'></view>
+    <!-- 消息展示的判断 -->
+    <block wx:for="{{messages}}">
+      <!-- 自己发送的消息 -->
+      <view class="my-chat-message" wx:if="{{item.isMe==1}}" >
+        <view class="chat-img ">
+          <image style="height: 75rpx; width: 75rpx; border-radius: 15rpx;"  src="../../static/user.jpeg" mode="aspectFit"></image>
+        </view>
+        <view class="triangle-right">
+          <view class="triangle-right2"></view>
+        </view>
+        <view class="chat-text-right" id='msg-{{index}}'>
+          <rich-text style="word-wrap: break-word; user-select: true; -webkit-user-select: text;" space="nbsp" nodes="{{item.content}}" selectable='true'/>
+        </view>
+      </view>
+      <!-- chatgpt回答的消息 -->
+      <view class="gpt-message" wx:else>
+        <view class="chat-img ">
+          <image style="height: 75rpx; width: 75rpx; border-radius: 15rpx;" src="../../static/gpt.jpeg" mode="aspectFit"></image>
+        </view>
+        <view class="triangle-left">
+          <view class="triangle-left2"></view>
+        </view>
+        <view class="chat-text-left" id='msg-{{index}}'>
+          <rich-text style="word-wrap: break-word; user-select: true; -webkit-user-select: text;" space="nbsp" nodes="{{item.content}}" />
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+  <view class='placeholder-view'></view>
+  <!-- 输入框 -->
+  <view class="chat-input" style="width: 100%;">
+    <textarea class="chat-input-box"  placeholder="描述你的问题..." value="{{userInputValue}}" style="width: 73%; max-height: 280rpx;"   maxlength="{{1000}}" auto-height="{{true}}" show-confirm-bar="{{false}}" cursor-spacing='15' bindinput="userInput"></textarea>
+    <button class="chat-send-btn" bindtap="onSend" style="width: 18%; font-size: small; border-radius: 30rpx; text-align: center;">发送</button>
+  </view>
+</view>
+
