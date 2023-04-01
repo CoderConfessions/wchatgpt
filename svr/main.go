@@ -7,40 +7,33 @@ import (
 	"io/ioutil"
 	"net/http"
 	"openai-svr/handler"
+	mysqlwrapper "openai-svr/mysql_wrapper"
 	openaiwrapper "openai-svr/openai_wrapper"
 	"openai-svr/utils"
 	"os"
 	"time"
-
-	"flag"
 
 	"github.com/gorilla/mux"
 )
 
 var configuration = utils.Configuration{}
 
-func parseCmd() error {
-	var configFile string
-	flag.StringVar(&configFile, "config-file", "", "server config file")
-	flag.Parse()
-
-	configuration.ReadConfig(configFile)
-	fmt.Printf("%v\n", configuration)
-
-	openaiwrapper.SetupToken(configuration.OpenaiApiToken)
-	return nil
-}
-
 func main() {
-	if err := parseCmd(); err != nil {
+	if err := utils.ParseCmd(&configuration); err != nil {
 		fmt.Println("parseCmd failed:", err.Error())
 		os.Exit(1)
 	}
+	openaiwrapper.SetupToken(configuration.OpenaiApiToken)
+
+	if err := mysqlwrapper.InitPool(); err != nil {
+		fmt.Println("init mysql connetion poll failed:", err.Error())
+		os.Exit(1)
+	}
+	defer mysqlwrapper.ReleasePool()
 
 	fmt.Println("main start")
 	r := mux.NewRouter()
-	r.HandleFunc("/chat/text-completion", handler.HandleSingleCompletion).Methods("POST")
-	r.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("ok")) })
+	handler.Register(r)
 
 	caClient, _ := ioutil.ReadFile(configuration.CertFile)
 	caPool := x509.NewCertPool()
@@ -57,8 +50,8 @@ func main() {
 		},
 	}
 
-	err := svr.ListenAndServeTLS(configuration.CertFile, configuration.KeyFile)
-	if err != nil {
+	// err := svr.ListenAndServeTLS(configuration.CertFile, configuration.KeyFile)
+	if err := svr.ListenAndServe(); err != nil {
 		fmt.Println("ListenAndServe error: ", err.Error())
 		os.Exit(1)
 	}

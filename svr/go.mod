@@ -1,8 +1,9 @@
 module openai-svr
 
-go 1.19
+go 1.18
 
 require (
-	github.com/gorilla/mux v1.8.0 // indirect
-	github.com/sashabaranov/go-openai v1.5.7 // indirect
+	github.com/go-sql-driver/mysql v1.7.0
+	github.com/gorilla/mux v1.8.0
+	github.com/sashabaranov/go-openai v1.5.7
 )
