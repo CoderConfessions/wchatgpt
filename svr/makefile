@@ -29,7 +29,7 @@ $(EXECUTABLE): $(SOURCES)
 
 # 运行
 run: $(EXECUTABLE)
-	./main --config-file=$(CONFIG_FILE)
+	$(BUILD_DIR)/main --config-file=$(CONFIG_FILE)
 
 # 清除生成的文件
 clean:
