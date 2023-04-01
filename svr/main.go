@@ -23,7 +23,7 @@ func main() {
 		fmt.Println("parseCmd failed:", err.Error())
 		os.Exit(1)
 	}
-	openaiwrapper.SetupToken(configuration.OpenaiApiToken)
+	openaiwrapper.SetupOpenAIClientConfig(configuration.OpenaiApiToken, "")
 
 	if err := mysqlwrapper.InitPool(); err != nil {
 		fmt.Println("init mysql connetion poll failed:", err.Error())
