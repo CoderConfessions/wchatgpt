@@ -8,18 +8,19 @@ import (
 	wrapper "openai-svr/openai_wrapper"
 )
 
-type SingleCompletionReq struct {
-	Prompt    string `json:"prompt"`
-	UserToken string `json:"user_token"`
+type singleCompletionReq struct {
+	Prompt  string `json:"prompt"`
+	UserUID string `json:"user_uid"`
 }
 
-func HandleSingleCompletion(http_resp http.ResponseWriter, http_req *http.Request) {
+type singleCompletionData struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+}
+
+func handleSingleCompletion(http_resp http.ResponseWriter, http_req *http.Request) {
 	resp := UniversalResp{}
-	defer func() {
-		body, _ := json.Marshal(resp)
-		http_resp.Header().Set("Content-Type", "application/json")
-		http_resp.Write(body)
-	}()
+	defer response(&resp, http_resp)
 
 	buf, err := ioutil.ReadAll(http_req.Body)
 	if err != nil {
@@ -28,7 +29,7 @@ func HandleSingleCompletion(http_resp http.ResponseWriter, http_req *http.Reques
 		return
 	}
 
-	internal_req := SingleCompletionReq{}
+	internal_req := singleCompletionReq{}
 	err = json.Unmarshal(buf, &internal_req)
 	if err != nil {
 		http_resp.WriteHeader(http.StatusBadRequest)
@@ -36,27 +37,25 @@ func HandleSingleCompletion(http_resp http.ResponseWriter, http_req *http.Reques
 		return
 	}
 
-	if len(internal_req.Prompt) == 0 || len(internal_req.UserToken) == 0 {
+	if len(internal_req.Prompt) == 0 || len(internal_req.UserUID) == 0 {
 		http_resp.WriteHeader(http.StatusBadRequest)
 		resp.QuickSetup(ParamaterError, fmt.Sprintf("Parameter error: %s", "some field miss"))
 		return
 	}
+	// TODO: access UserUID in db, insert if not exists
 
-	if internal_req.UserToken != "xilan" {
-		http_resp.WriteHeader(http.StatusUnauthorized)
-		resp.QuickSetup(NoAuthError, fmt.Sprintf("NoAuth error: token is invalid"))
+	openai_resp, err := wrapper.SingleCompletion(internal_req.Prompt)
+	if err != nil {
+		http_resp.WriteHeader(http.StatusInternalServerError)
+		resp.QuickSetup(OpenAIError, fmt.Sprintf("OpenAIError error: %s", err.Error()))
 		return
 	}
-
-	if false {
-		openai_resp, err := wrapper.SingleCompletion(internal_req.Prompt)
-		if err != nil {
-			http_resp.WriteHeader(http.StatusInternalServerError)
-			resp.QuickSetup(OpenAIError, fmt.Sprintf("OpenAIError error: %s", err.Error()))
-			return
-		}
-		resp.Data = openai_resp
+	resp.Data = singleCompletionData{
+		ID:   openai_resp.ID,
+		Text: openai_resp.Choices[0].Text,
 	}
+
+	// TODO: record user usage in DB
 
 	resp.QuickSetup(Ok, "ok")
 	return
