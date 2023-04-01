@@ -44,7 +44,7 @@ Page({
     const i = event.currentTarget.dataset.i;
     const content = this.data.$conversation[i][1];
 
-    wx.setClipboardData({ data: content + "\n\n——微信小程序 GPro" });
+    wx.setClipboardData({ data: content + "\n\n——微信小程序 wChatGPT" });
   },
 
   async onTapSendButton() {

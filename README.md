@@ -54,7 +54,7 @@ const socketTask = wx.connectSocket({
 
 ## 演示
 
-- 在微信中搜索 `GPro` 小程序
+- 在微信中搜索 `wChatGPT` 小程序
 - 扫描下方的小程序码体验
 
 ![download](https://user-images.githubusercontent.com/7540550/228626291-65ccbbb7-ee74-497b-b73d-628fabe876a5.jpg)
