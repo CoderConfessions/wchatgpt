@@ -2,6 +2,6 @@
     "cert_file": "",
     "key_file": "",
     "openai_api_token": "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",
-    "ip": "0.0.0.0",
+    "ip": "10.12.12.101",
     "port": 8080
 }
