@@ -1,38 +1,39 @@
-# 项目名称
 PROJECT_NAME=wchatgpt
-
-# 源文件目录
 SRC_DIR=./
-
-# 可执行文件输出目录
 BUILD_DIR=./build
-
-# 编译命令
+# go compile 
 GO_BUILD=go build
+# go source file
+SOURCES=$(find $(SRC_DIR) -type f -name '*.go')
 
-# 需要编译的文件列表
-# 如果有新的文件，需要手动更新该列表
-SOURCES=$(shell find $(SRC_DIR) -type f -name '*.go')
-
-# 可执行文件名称
+# bin name
 EXECUTABLE=$(BUILD_DIR)/main
 
-# 配置文件
+# configuration
 CONFIG_FILE=./configuration.json
 
-# 编译目标（默认）
+# DOCKER
+DOCKER_IMAGE=wchatgpt
+DOCKER_TAG=latest
+DOCKERFILE_PATH=./Dockerfile
+
+docker-build:
+	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) -f $(DOCKERFILE_PATH) .
+
+docker-run:docker-build
+	docker run -it -rm -p 8080:8080 $(DOCKER_IMAGE):$(DOCKER_TAG)
+
 build: $(EXECUTABLE)
 
-# 编译可执行文件
 $(EXECUTABLE): $(SOURCES)
 	$(GO_BUILD) -o $(EXECUTABLE) -ldflags="-s -w" -v ./main.go
 
-# 运行
 run: $(EXECUTABLE)
 	$(BUILD_DIR)/main --config-file=$(CONFIG_FILE)
 
-# 清除生成的文件
+
 clean:
 	rm -rf $(BUILD_DIR)
+	docker rmi $(DOCKER_IMAGE):$(DOCKER_TAG)
 
 .PHONY: build run clean
