@@ -1,8 +1,3 @@
-# ChatGPT 微信小程序
-
-ChatGPT 是一个基于大型语言模型的自然语言处理平台，提供了强大的自然语言处理和自然语言生成功能。本微信小程序实现了 ChatGPT 官网移动版本的对话功能，方便用户在微信上使用 ChatGPT 进行各种类型的自然语言交互。本微信小程序可以与 [ChatGPT WebSocket 服务端](https://github.com/zxz054321/chatgpt-websocket-server) 搭配使用。
-
-本文档由 ChatGPT 生成和润色。
 
 ## 主要特点
 
@@ -38,15 +33,6 @@ ChatGPT 是一个基于大型语言模型的自然语言处理平台，提供了
 
 在 `/project.config.json` 文件中设置 `appid` 字段以指定小程序的 AppID。
 
-#### WebSocket
-
-在 `/miniprogram/lib/websocket.ts` 文件中设置 `url` 字段以指定 WebSocket 的 URL。例如：
-
-```tsx
-const socketTask = wx.connectSocket({
-  url: "wss://yourdomain",
-});
-```
 
 ## 注意事项
 
@@ -57,4 +43,3 @@ const socketTask = wx.connectSocket({
 - 在微信中搜索 `wChatGPT` 小程序
 - 扫描下方的小程序码体验
 
-![download](https://user-images.githubusercontent.com/7540550/228626291-65ccbbb7-ee74-497b-b73d-628fabe876a5.jpg)
