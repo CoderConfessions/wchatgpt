@@ -1,13 +1,16 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	mysqlwrapper "openai-svr/mysql_wrapper"
 	wrapper "openai-svr/openai_wrapper"
 
 	"github.com/sashabaranov/go-openai"
+	"k8s.io/klog/v2"
 )
 
 type chatCompletionReq struct {
@@ -33,28 +36,43 @@ func handleChatChatCompletion(http_resp http.ResponseWriter, http_req *http.Requ
 		return
 	}
 
+	http_resp.WriteHeader(http.StatusOK)
+
 	internal_req := chatCompletionReq{}
 	err = json.Unmarshal(buf, &internal_req)
 	if err != nil {
-		http_resp.WriteHeader(http.StatusBadRequest)
 		resp.QuickSetup(UnmarshalJsonError, fmt.Sprintf("Unmarshal error: %s", err.Error()))
 		return
 	}
 
 	if len(internal_req.ChatID) == 0 || len(internal_req.Prompt) == 0 || len(internal_req.UserUID) == 0 {
-		http_resp.WriteHeader(http.StatusBadRequest)
 		resp.QuickSetup(ParamaterError, fmt.Sprintf("Parameter error: %s", "some field miss"))
 		return
 	}
-	// TODO: access ChatID , error if not exists
-	// TODO: acccess history messages in DB, join here ?
 
-	// TODO: validate chatID has expired or not, error if expired
+	uuid, err := mysqlwrapper.GetUserUIDByChatID(internal_req.ChatID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			resp.QuickSetup(ParamaterError, fmt.Sprintf("invalid request: chat id not found, please create new chat first"))
+			return
+		}
+		resp.QuickSetup(DBError, fmt.Sprintf("internal error, try again later"))
+		return
+	}
+	if uuid != internal_req.UserUID {
+		resp.QuickSetup(NoAuthError, fmt.Sprintf("UserUUID not consistent with chatID"))
+		return
+	}
 
-	historyMessages := make([]openai.ChatCompletionMessage, 0)
+	historyMessages, err := mysqlwrapper.GetHistoryMessageByChatID(internal_req.ChatID)
+	if err != nil {
+		klog.Errorf("GetHistoryMessageByChatID failed: %s", err.Error())
+		resp.QuickSetup(DBError, fmt.Sprintf("access histroy failed"))
+		return
+	}
+
 	openai_resp, err := wrapper.ChatCompletion(historyMessages, internal_req.Prompt)
 	if err != nil {
-		http_resp.WriteHeader(http.StatusInternalServerError)
 		resp.QuickSetup(OpenAIError, fmt.Sprintf("OpenAIError error: %s", err.Error()))
 		return
 	}
@@ -66,6 +84,16 @@ func handleChatChatCompletion(http_resp http.ResponseWriter, http_req *http.Requ
 	// TODO: record user usage in DB
 
 	// TODO:: record user prompt and open ai answer in DB
+	newMessages := make([]openai.ChatCompletionMessage, 2, 2)
+	newMessages[0] = openai.ChatCompletionMessage{
+		Role:    "user",
+		Content: internal_req.Prompt,
+	}
+	newMessages[1] = openai_resp.Choices[0].Message
+	err = mysqlwrapper.UpdateHistoryMessageByChatID(internal_req.ChatID, newMessages)
+	if err != nil {
+		klog.Errorf("UpdateHistroyMessageByChatID failed: %s", err.Error())
+	}
 
 	resp.QuickSetup(Ok, "ok")
 	return

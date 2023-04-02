@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	mysqlwrapper "openai-svr/mysql_wrapper"
 
 	"github.com/google/uuid"
+	"k8s.io/klog/v2"
 )
 
 type createChatIdReq struct {
@@ -27,24 +29,28 @@ func createChatId(http_resp http.ResponseWriter, http_req *http.Request) {
 		resp.QuickSetup(NetworkError, fmt.Sprintf("ReadAll error: %s", err.Error()))
 		return
 	}
+	http_resp.WriteHeader(http.StatusOK)
 
 	internal_req := createChatIdReq{}
 	err = json.Unmarshal(buf, &internal_req)
 	if err != nil {
-		http_resp.WriteHeader(http.StatusBadRequest)
 		resp.QuickSetup(UnmarshalJsonError, fmt.Sprintf("Unmarshal error: %s", err.Error()))
 		return
 	}
 
 	if internal_req.UserUID == "" {
-		http_resp.WriteHeader(http.StatusBadRequest)
 		resp.QuickSetup(ParamaterError, fmt.Sprintf("Parameter error: %s", "some field miss"))
 		return
 	}
 	chatID := uuid.New().String()
 	resp.Data = createChatIdData{ChatID: chatID}
 
-	// TODO: write db record user uid in chat id
+	err = mysqlwrapper.UpdateChatID(internal_req.UserUID, chatID)
+	if err != nil {
+		klog.Errorf("UpdateChatID failed: %s", err.Error())
+		resp.QuickSetup(DBError, fmt.Sprintf("Internal error, try again later"))
+		return
+	}
 
 	resp.QuickSetup(Ok, "ok")
 	return

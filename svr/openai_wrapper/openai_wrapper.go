@@ -11,7 +11,7 @@ var config openai.ClientConfig
 
 func SetupOpenAIClientConfig(token string, baseURL string) {
 	config = openai.DefaultConfig(token)
-	if len(baseURL) == 0 {
+	if len(baseURL) != 0 {
 		config.BaseURL = baseURL
 	}
 }

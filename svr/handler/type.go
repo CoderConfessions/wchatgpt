@@ -12,6 +12,7 @@ const (
 	ParamaterError     int = 1100
 	NoAuthError        int = 1101
 	OpenAIError        int = 2000
+	DBError            int = 2001
 )
 
 type UniversalResp struct {
