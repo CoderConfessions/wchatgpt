@@ -62,14 +62,15 @@ Page({
     this.setData({ showStartPage: false, prompt: "" });
 
     const history = this.data.$conversation.slice(0, this.data.$conversation.length - 1);
-    const { send } = useGPT();
+    const send = useGPT();
     const final = () => this.setData({ isGenerating: false });
 
 		const serializedMessages = JSON.stringify(history)
 		console.log(serializedMessages);
 		send(prompt).then((response: any) => {
 			// 将conversation（类型为数组）中最后一个
-			conversation.appendAssistantMessage(prompt);
+			console.log(response);
+			conversation.appendAssistantMessage(response.data.text);
 			final();
 		}).catch(() => {
 			conversation.appendAssistantMessage("网络错误");
