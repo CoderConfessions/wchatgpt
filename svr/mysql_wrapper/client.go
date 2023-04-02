@@ -69,7 +69,7 @@ func GetHistoryMessageByChatID(chatID string) ([]openai.ChatCompletionMessage, e
 	messages := make([]openai.ChatCompletionMessage, 0)
 	for rows.Next() {
 		message := openai.ChatCompletionMessage{}
-		rows.Scan(message.Role, message.Content)
+		rows.Scan(&message.Role, &message.Content)
 		messages = append(messages, message)
 	}
 	sort.SliceStable(messages, func(i, j int) bool {

@@ -25,6 +25,7 @@ func main() {
 		klog.Fatalf("ParseCmd failed: %s", err.Error())
 		os.Exit(1)
 	}
+	utils.InitLocks()
 	openaiwrapper.SetupOpenAIClientConfig(configuration.OpenaiApiToken, "")
 
 	if err := mysqlwrapper.InitPool(); err != nil {

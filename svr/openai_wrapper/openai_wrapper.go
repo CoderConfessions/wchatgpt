@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/sashabaranov/go-openai"
+	"k8s.io/klog/v2"
 )
 
 var config openai.ClientConfig
@@ -42,6 +43,7 @@ func ChatCompletion(historyMessages []openai.ChatCompletionMessage, prompt strin
 		Role:    "user",
 		Content: prompt,
 	})
+	klog.V(8).Infof("message: %v", messages)
 	return newClient().CreateChatCompletion(
 		subctx,
 		openai.ChatCompletionRequest{
