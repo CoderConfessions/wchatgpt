@@ -30,6 +30,7 @@ func handleChatChatCompletion(http_resp http.ResponseWriter, http_req *http.Requ
 	defer response(&resp, http_resp)
 
 	buf, err := ioutil.ReadAll(http_req.Body)
+	defer http_req.Body.Close()
 	if err != nil {
 		http_resp.WriteHeader(http.StatusBadGateway)
 		resp.QuickSetup(NetworkError, fmt.Sprintf("ReadAll error: %s", err.Error()))
