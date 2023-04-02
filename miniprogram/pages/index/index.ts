@@ -1,4 +1,3 @@
-import { useMsgSecCheck } from "../../lib/cloudfunction";
 import { useConversation } from "./conversation";
 import { useGPT } from "./gpt";
 
@@ -57,36 +56,24 @@ Page({
       return;
     }
 
-    const { pass } = await useMsgSecCheck(prompt);
-    if (!pass) {
-      wx.showToast({ icon: "none", title: "请遵守法律法规" });
-      return;
-    }
-
     conversation.addUserMessage(prompt);
     conversation.addAssistantMessage("");
 
     this.setData({ showStartPage: false, prompt: "" });
 
     const history = this.data.$conversation.slice(0, this.data.$conversation.length - 1);
-    const { send, handleMessage, handleClose, handleError } = useGPT(history);
+    const { send } = useGPT();
     const final = () => this.setData({ isGenerating: false });
 
-    handleError(() => {
-      wx.showToast({ title: "无法连接服务器", icon: "error" });
-      conversation.setAssistantMessageFailed();
-      final();
-    });
-
-    handleClose((res: any) => {
-      if (res.code !== 1000) {
-        wx.showToast({ title: "服务器连接中断", icon: "error" });
-        console.log(res);
-      }
-      final();
-    });
-
-    handleMessage((piece: string) => conversation.appendAssistantMessage(piece));
-    send();
+		const serializedMessages = JSON.stringify(history)
+		console.log(serializedMessages);
+		send(prompt).then((response: any) => {
+			// 将conversation（类型为数组）中最后一个
+			conversation.appendAssistantMessage(prompt);
+			final();
+		}).catch(() => {
+			conversation.appendAssistantMessage("网络错误");
+			final();
+		});
   },
 });

@@ -1,10 +1,29 @@
-import { useWebsocket } from "../../lib/websocket";
 import type { Message } from "./conversation";
 
-export function useGPT(conversation: Message[]) {
-  const { send, handleMessage, handleClose, handleError } = useWebsocket(
-    conversation.map((msg) => msg.slice(0, 2))
-  );
-
-  return { send, handleMessage, handleClose, handleError };
+export function useGPT() {
+  const send = async (message: string) => {
+		
+		try {
+			const resp = await wx.cloud.callContainer({
+				"config": {
+					"env": "prod-0g1idfbhf182d0c2"
+				},
+				"path": "/chat/text_completion",
+				"header": {
+					"X-WX-SERVICE": "golang-1jmj",
+					"Content-Type": "application/json"
+				},
+				"method": "POST",
+				"data": {
+					"action": "inc",
+					"prompt": message
+				}
+			});
+			console.log(resp.data);
+		}catch (error) {
+			console.error(error);
+		}
+		return message;
+	}
+  return { send };
 }
