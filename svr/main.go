@@ -28,7 +28,7 @@ func main() {
 	utils.InitLocks()
 	openaiwrapper.SetupOpenAIClientConfig(configuration.OpenaiApiToken, "")
 
-	if err := mysqlwrapper.InitPool(); err != nil {
+	if err := mysqlwrapper.InitPool(configuration.DB); err != nil {
 		klog.Fatalf("init mysql connection pool failed: %s", err.Error())
 	}
 	defer mysqlwrapper.ReleasePool()

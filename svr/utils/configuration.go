@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	mysqlwrapper "openai-svr/mysql_warpper"
+	mysqlwrapper "openai-svr/mysql_wrapper"
 	"os"
 )
 
