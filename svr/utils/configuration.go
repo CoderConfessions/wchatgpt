@@ -4,15 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	mysqlwrapper "openai-svr/mysql_warpper"
 	"os"
 )
 
 type Configuration struct {
-	CertFile       string `json:"cert_file"`
-	KeyFile        string `json:"key_file"`
-	OpenaiApiToken string `json:"openai_api_token"`
-	IP             string `json:"ip"`
-	Port           uint   `json:"port"`
+	CertFile       string                `json:"cert_file"`
+	KeyFile        string                `json:"key_file"`
+	OpenaiApiToken string                `json:"openai_api_token"`
+	IP             string                `json:"ip"`
+	Port           uint                  `json:"port"`
+	DB             mysqlwrapper.DBConfig `json:"db"`
 }
 
 func NewConfiguration() Configuration {

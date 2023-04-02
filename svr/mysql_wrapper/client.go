@@ -13,9 +13,17 @@ import (
 
 var pool *sql.DB
 
-func InitPool() error {
+type DBConfig struct {
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Host     string `json:"host"`
+	Schema   string `json:"schema"`
+	Port     int    `json:"port"`
+}
+
+func InitPool(conf DBConfig) error {
 	var err error
-	dsn := "xilan:xilan123@tcp(localhost:3306)/wtestgpt"
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", conf.User, conf.Password, conf.Host, conf.Port, conf.Schema)
 	pool, err = sql.Open("mysql", dsn)
 	if err != nil {
 		// This will not be a connection error, but a DSN parse error or
