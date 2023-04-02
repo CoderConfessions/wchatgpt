@@ -21,7 +21,7 @@ type UniversalResp struct {
 	Data    interface{} `json:"data,emptyomit"`
 }
 
-func (ur *UniversalResp) QuickSetup(code int, message string) UniversalResp {
+func (ur *UniversalResp) quickSetup(code int, message string) UniversalResp {
 	ur.Code = code
 	ur.Message = message
 	return *ur

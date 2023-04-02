@@ -27,7 +27,7 @@ func createChatId(http_resp http.ResponseWriter, http_req *http.Request) {
 	defer http_req.Body.Close()
 	if err != nil {
 		http_resp.WriteHeader(http.StatusBadGateway)
-		resp.QuickSetup(NetworkError, fmt.Sprintf("ReadAll error: %s", err.Error()))
+		resp.quickSetup(NetworkError, fmt.Sprintf("ReadAll error: %s", err.Error()))
 		return
 	}
 	http_resp.WriteHeader(http.StatusOK)
@@ -35,12 +35,12 @@ func createChatId(http_resp http.ResponseWriter, http_req *http.Request) {
 	internal_req := createChatIdReq{}
 	err = json.Unmarshal(buf, &internal_req)
 	if err != nil {
-		resp.QuickSetup(UnmarshalJsonError, fmt.Sprintf("Unmarshal error: %s", err.Error()))
+		resp.quickSetup(UnmarshalJsonError, fmt.Sprintf("Unmarshal error: %s", err.Error()))
 		return
 	}
 
 	if internal_req.UserUID == "" {
-		resp.QuickSetup(ParamaterError, fmt.Sprintf("Parameter error: %s", "some field miss"))
+		resp.quickSetup(ParamaterError, fmt.Sprintf("Parameter error: %s", "some field miss"))
 		return
 	}
 	chatID := uuid.New().String()
@@ -49,10 +49,10 @@ func createChatId(http_resp http.ResponseWriter, http_req *http.Request) {
 	err = mysqlwrapper.UpdateChatID(internal_req.UserUID, chatID)
 	if err != nil {
 		klog.Errorf("UpdateChatID failed: %s", err.Error())
-		resp.QuickSetup(DBError, fmt.Sprintf("Internal error, try again later"))
+		resp.quickSetup(DBError, fmt.Sprintf("Internal error, try again later"))
 		return
 	}
 
-	resp.QuickSetup(Ok, "ok")
+	resp.quickSetup(Ok, "ok")
 	return
 }

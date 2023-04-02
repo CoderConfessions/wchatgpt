@@ -6,19 +6,21 @@ import (
 )
 
 var locks []sync.Mutex
+var size uint64
 
 func InitLocks() {
-	locks = make([]sync.Mutex, 1000, 1000)
+	size = 1000
+	locks = make([]sync.Mutex, size, size)
 }
 
 func Lock(key string) {
 	h := fnv.New64()
 	h.Write([]byte(key))
-	locks[h.Sum64()%1000].Lock()
+	locks[h.Sum64()%size].Lock()
 }
 
 func UnLock(key string) {
 	h := fnv.New64()
 	h.Write([]byte(key))
-	locks[h.Sum64()%1000].Unlock()
+	locks[h.Sum64()%size].Unlock()
 }
