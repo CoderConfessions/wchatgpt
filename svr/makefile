@@ -34,6 +34,14 @@ run: $(EXECUTABLE)
 
 clean:
 	rm -rf $(BUILD_DIR)
-	docker rmi $(DOCKER_IMAGE):$(DOCKER_TAG)
+	@if docker inspect $(DOCKER_IMAGE):$(DOCKER_TAG) >/dev/null 2>&1; then \
+        docker rmi $(DOCKER_IMAGE):$(DOCKER_TAG); \
+    else \
+        echo "$(DOCKER_IMAGE):$(DOCKER_TAG) does not exist"; \
+    fi
+
+cbuild: clean build
+
+crun: clean run
 
 .PHONY: build run clean

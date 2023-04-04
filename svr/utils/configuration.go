@@ -8,6 +8,13 @@ import (
 	"os"
 )
 
+type klogConfig struct {
+	V               string `json:"v"`
+	Logtostderr     string `json:"logtostderr"`
+	Alsologtostderr string `json:"alsologtostderr"`
+	Path            string `json:"path"`
+}
+
 type Configuration struct {
 	CertFile       string                `json:"cert_file"`
 	KeyFile        string                `json:"key_file"`
@@ -15,6 +22,7 @@ type Configuration struct {
 	IP             string                `json:"ip"`
 	Port           uint                  `json:"port"`
 	DB             mysqlwrapper.DBConfig `json:"db"`
+	Log            klogConfig            `json:"log_config"`
 }
 
 func NewConfiguration() Configuration {
@@ -39,5 +47,22 @@ func (c *Configuration) ReadConfig(configFile string) error {
 }
 
 func (c *Configuration) ValidateConfig() error {
+	if len(c.IP) == 0 {
+		return errors.New("IP is not specified")
+	}
+	if c.Port == 0 {
+		return errors.New("Port is not specified")
+	}
+	if len(c.OpenaiApiToken) == 0 {
+		return errors.New("OpenaiApiToken is not specified")
+	}
+	if len(c.Log.Path) == 0 {
+		// 获取当前路径根目录
+		dir, err := os.Getwd()
+		if err != nil {
+			return errors.New("get current path failed")
+		}
+		c.Log.Path = dir + "/log"
+	}
 	return nil
 }
