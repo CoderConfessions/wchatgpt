@@ -29,7 +29,8 @@ $(EXECUTABLE): $(SOURCES)
 	$(GO_BUILD) -o $(EXECUTABLE) -ldflags="-s -w" -v ./main.go
 
 run: $(EXECUTABLE)
-	$(BUILD_DIR)/main --config-file=$(CONFIG_FILE)
+	mkdir -p ./log
+	$(BUILD_DIR)/main --config-file=$(CONFIG_FILE) -v=4 -logtostderr=false -log_dir=./log/
 
 
 clean:
