@@ -10,11 +10,5 @@
         "password": "xilan123",
         "host": "localhost",
         "port": 3306
-    },
-    "log_config": {
-        "v": "3",             
-        "logtostderr": "false", 
-        "alsologtostderr": "false",
-        "path": ""
     }
 }
