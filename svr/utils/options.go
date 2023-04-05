@@ -20,6 +20,5 @@ func ParseCmd(c *Configuration) error {
 	}
 
 	klog.Info(c)
-	klog.V(4).Info(c)
 	return nil
 }
